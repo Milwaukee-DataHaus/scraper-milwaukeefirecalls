@@ -1,29 +1,35 @@
-//Include Modules
+//Include Modules and Files
 var casper = require('casper').create();
 var fs = require('fs');
+var system = require('system');
+var replacements = require('call_replacements.json');
+
+//File Path
+var curFilePath = fs.absolute(system.args[3]).split('/');
+
+if (curFilePath.length > 1) {
+    curFilePath.pop();
+    curFilePath = curFilePath.join('/');
+}
+
 //Title Case
-String.prototype.toTitleCase = function() {
-    return this.replace(/\w\S*/g, function(txt) {
+String.prototype.toTitleCase = function () {
+    return this.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
 };
+
 //Friendly Nature of Call Descriptions
-var getFriendlyName = function(call) {
-    switch (call) {
-        case '29D029':
-            return 'Motor Vehicle Accident (Injuries)'
-        case '29D02P':
-            return 'Motor Vehicle Accident (Injuries)'
-        case 'OOCFINVESTIGATIVE RESPONSEE':
-            return 'Out of City Investigative Response'
-        case 'EMS':
-            return 'Medical Assistance'
-        default:
-            return call.toTitleCase();
+var getFriendlyName = function (call) {
+    if (replacements.hasOwnProperty(call)) {
+        return replacements[call];
+    } else {
+        return call.toTitleCase();
     }
 };
+
 //Prepare Casper Tasks
-casper.start('http://itmdapps.milwaukee.gov/MFDCallData/currentCADCalls/mfdCallsService.jsf', function() {
+casper.start('http://itmdapps.milwaukee.gov/MFDCallData/currentCADCalls/mfdCallsService.jsf', function () {
     //Output Array
     var output = {
         meta: {
@@ -33,12 +39,12 @@ casper.start('http://itmdapps.milwaukee.gov/MFDCallData/currentCADCalls/mfdCalls
         calls: []
     };
     //Get Data We Need for Meta and Paging
-    this.echo("Beginning Scrape...");
+    this.echo("Beginning Scrape of MFD Calls...");
     output.meta.last_updated = this.fetchText('span[id="formId:updatedId"]');
     output.meta.num_calls = parseInt(this.fetchText('span[id="formId:textTotalCallId"]').substring(25));
     var pages = parseInt(this.fetchText('span[id="formId:tableExUpdateId:deluxe1__pagerText"]').substring(9));
     //Loop Through Pages and Scrape Data
-    this.repeat(pages, function() {
+    this.repeat(pages, function () {
         var callsForService = this.getElementsInfo('table[class="dataTableEx"] tbody tr[class^="rowClass"]');
         for (var i = 0; i < callsForService.length; i++) {
             var callInfo = callsForService[i].text.split('\n');
@@ -52,16 +58,19 @@ casper.start('http://itmdapps.milwaukee.gov/MFDCallData/currentCADCalls/mfdCalls
             tempCall['nature_of_call'] = getFriendlyName(callInfo[5].trim());
             tempCall['disposition'] = callInfo[6].toTitleCase().trim();
             output.calls.push(tempCall);
-            this.echo("Processing CFS " + tempCall['cfs']);
+            this.echo("Retrieving CFS " + tempCall['cfs']);
         }
         //Click to Go to The Next Page
         this.click('input[id="formId:tableExUpdateId:deluxe1__pagerNext"]');
     });
     //Write JSON File and End Tasks
-    this.then(function() {
-        fs.write("/datahaus/mfd_calls_for_service/mfd_calls_for_service.json", JSON.stringify(output, null, 4), 'w');
-        this.echo("Scrape Complete!");
+    this.then(function () {
+        fs.write(curFilePath + "/mfd_calls_for_service.json", JSON.stringify(output, null, 4), 'w');
     });
 });
-//Run Casper
-casper.run();
+
+//Run Casper, Exit on Complete
+casper.run(function () {
+    this.echo("MFD Scrape Complete!");
+    this.exit();
+});

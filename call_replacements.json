@@ -1,0 +1,21 @@
+{
+	"29B01Y": "Transportation Incident (Injuries)",
+	"29B03": "Transportation Incident (Multiple Victims, Additional Units)",
+	"29B03U": "Transportation Incident (Multiple Victims, Additional Units)",
+    "29D029": "Transportation Incident (High Mechanism)",
+    "29D02P": "Transportation Incident (High Mechanism)",
+    "29D01B": "Transportation Incident (Major Incident)",
+    "29D04": "Transportation Incident (Pinned Victim)",
+    "29D04U": "Transportation Incident (Pinned Victim)",
+    "29D04V": "Transportation Incident (Pinned Victim)",
+    "29D04Y": "Transportation Incident (Pinned Victim)",
+    "ASSIST MFD": "Assist Fire Units",
+    "BUILDING FIRE2": "Building Fire (Two-Alarm)",
+    "BUILDING FIRE3": "Building Fire (Three-Alarm)",
+    "EMS": "Medical Assistance",
+    "HAZMAT RESPONSE CALL": "Hazardous Material Response",
+    "H.U.R.T. TEAM RESPONSE": "H.U.R.T. Team Response",
+    "LHAZARDOUS MATERIAL RESPONSE": "Hazardous Material Response",
+    "OOCFINVESTIGATIVE RESPONSEE": "Out of City Investigative Response",
+    "TIMMERMAN AIRPORT RESP": "Timmerman Airport Response"
+}
